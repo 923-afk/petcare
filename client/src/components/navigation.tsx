@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Chatbot } from "@/components/chatbot";
 
 export default function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -88,6 +89,8 @@ export default function Navigation() {
                   </Link>
                 </>
               )}
+
+              <Chatbot />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

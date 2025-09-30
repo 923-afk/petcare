@@ -5,6 +5,7 @@ import { loginSchema, registerSchema, insertPetSchema, insertAppointmentSchema, 
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { getChatResponse } from "./lib/openai";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret";
 
@@ -299,6 +300,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(vaccination);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Chat route
+  const chatSchema = z.object({
+    message: z.string(),
+    history: z.array(z.object({
+      role: z.enum(["user", "assistant"]),
+      content: z.string(),
+    })).optional().default([]),
+  });
+
+  app.post("/api/chat", authenticateToken, async (req: any, res) => {
+    try {
+      const { message, history } = chatSchema.parse(req.body);
+      const user = await storage.getUser(req.user.userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const response = await getChatResponse(message, history, user.userType as "owner" | "clinic");
+      res.json({ response });
+    } catch (error: any) {
+      console.error("Chat error:", error);
+      res.status(500).json({ message: "Failed to process chat request" });
     }
   });
 
