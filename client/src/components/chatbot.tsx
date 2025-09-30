@@ -78,20 +78,19 @@ export function Chatbot() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button 
-          variant="outline" 
           size="icon" 
-          className="relative"
+          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:scale-110 transition-transform z-50"
           data-testid="chatbot-trigger"
         >
-          <MessageCircle className="h-5 w-5" />
-          <Sparkles className="absolute -top-1 -right-1 h-3 w-3 text-accent" />
+          <MessageCircle className="h-6 w-6" />
+          <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-accent" />
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg flex flex-col p-0">
         <SheetHeader className="p-6 pb-4 border-b">
           <SheetTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-primary" />
-            PetCare Assistant
+            Vetcepi Assistant
           </SheetTitle>
           <p className="text-sm text-muted-foreground">
             Ask me anything about {user?.userType === "owner" ? "pet care and appointments" : "managing your clinic"}
@@ -102,7 +101,7 @@ export function Chatbot() {
           {messages.length === 0 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Welcome! I'm here to help you with PetCare Pro. Try one of these:
+                Welcome! I'm here to help you with Vetcepi. Try one of these:
               </p>
               <div className="grid gap-2">
                 {quickPrompts.map((prompt, i) => (

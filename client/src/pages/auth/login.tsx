@@ -55,7 +55,7 @@ export default function Login() {
         <CardHeader className="text-center border-b">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Heart className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">PetCare Pro</span>
+            <span className="text-2xl font-bold">Vetcepi</span>
           </div>
           <CardTitle className="text-xl" data-testid="login-title">Welcome back!</CardTitle>
           <p className="text-muted-foreground">Sign in to your account to continue</p>

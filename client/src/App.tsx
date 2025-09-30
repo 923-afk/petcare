@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
@@ -15,12 +16,30 @@ import ClinicDashboard from "@/pages/clinic/dashboard";
 import ClinicAppointments from "@/pages/clinic/appointments";
 import ClinicPatients from "@/pages/clinic/patients";
 import Navigation from "@/components/navigation";
+import { Chatbot } from "@/components/chatbot";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   const { isAuthenticated, user } = useAuth();
   const [location] = useLocation();
   const isAuthPage = location === '/login' || location === '/register';
+
+  useEffect(() => {
+    const themes = ['owner-theme', 'clinic-theme', 'vet-theme'];
+    themes.forEach(theme => document.documentElement.classList.remove(theme));
+    
+    if (user?.userType === 'owner') {
+      document.documentElement.classList.add('owner-theme');
+    } else if (user?.userType === 'clinic') {
+      document.documentElement.classList.add('clinic-theme');
+    } else if (user?.userType === 'vet') {
+      document.documentElement.classList.add('vet-theme');
+    }
+    
+    return () => {
+      themes.forEach(theme => document.documentElement.classList.remove(theme));
+    };
+  }, [user?.userType]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,6 +70,9 @@ function Router() {
 
         <Route component={NotFound} />
       </Switch>
+      
+      {/* Floating Chatbot - only show when authenticated */}
+      {isAuthenticated && <Chatbot />}
     </div>
   );
 }

@@ -233,6 +233,72 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
+/* OWNER/CLIENT THEME - Blue Theme */
+.owner-theme {
+  --primary: 210 100% 50%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 210 100% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --ring: 210 75% 45%;
+  
+  /* Fallback for older browsers */
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.owner-theme.dark {
+  --primary: 210 100% 50%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 210 100% 50%;
+  --ring: 210 70% 55%;
+}
+
+/* CLINIC THEME - Green/Teal Theme */
+.clinic-theme {
+  --primary: 142 76% 36%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 142 76% 36%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --ring: 142 70% 30%;
+  
+  /* Fallback for older browsers */
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.clinic-theme.dark {
+  --primary: 142 76% 40%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 142 76% 40%;
+  --ring: 142 70% 45%;
+}
+
+/* VET/PROFESSIONAL THEME - Purple/Violet Theme */
+.vet-theme {
+  --primary: 270 60% 50%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 270 60% 50%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --ring: 270 55% 45%;
+  
+  /* Fallback for older browsers */
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+}
+
+.vet-theme.dark {
+  --primary: 270 60% 55%;
+  --primary-foreground: 0 0% 98%;
+  --sidebar-primary: 270 60% 55%;
+  --ring: 270 55% 60%;
+}
+
 @layer base {
   * {
     @apply border-border;

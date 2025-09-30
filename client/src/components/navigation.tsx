@@ -9,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Chatbot } from "@/components/chatbot";
 
 export default function Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -29,7 +28,7 @@ export default function Navigation() {
       <div className="container flex h-16 items-center px-4 mx-auto max-w-7xl">
         <Link href="/" className="flex items-center space-x-2" data-testid="logo-link">
           <Heart className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-foreground">PetCare Pro</span>
+          <span className="text-xl font-bold text-foreground">Vetcepi</span>
         </Link>
 
         <div className="flex items-center space-x-6 ml-auto">
@@ -89,8 +88,6 @@ export default function Navigation() {
                   </Link>
                 </>
               )}
-
-              <Chatbot />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

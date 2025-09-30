@@ -38,7 +38,7 @@ export default function Register() {
     try {
       await registerUser(data);
       toast({
-        title: "Welcome to PetCare Pro!",
+        title: "Welcome to Vetcepi!",
         description: "Your account has been created successfully.",
       });
       setLocation("/dashboard");
@@ -57,7 +57,7 @@ export default function Register() {
         <CardHeader className="text-center border-b">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Heart className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">PetCare Pro</span>
+            <span className="text-2xl font-bold">Vetcepi</span>
           </div>
           <CardTitle className="text-xl" data-testid="register-title">Create your account</CardTitle>
           <p className="text-muted-foreground">Join thousands of pet owners and veterinary professionals</p>

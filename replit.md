@@ -1,8 +1,8 @@
-# PetCare Pro
+# Vetcepi
 
 ## Overview
 
-PetCare Pro is a comprehensive veterinary management system that connects pet owners with veterinary clinics. It provides appointment booking, pet health record management, and clinic management capabilities through a modern web application. The system supports two user types: pet owners who can manage their pets and book appointments, and veterinary clinics who can manage appointments and patient records.
+Vetcepi is a comprehensive veterinary management system that connects pet owners with veterinary clinics. It provides appointment booking, pet health record management, and clinic management capabilities through a modern web application. The system supports two user types: pet owners who can manage their pets and book appointments, and veterinary clinics who can manage appointments and patient records.
 
 ## Project Progress
 

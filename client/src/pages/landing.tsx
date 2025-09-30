@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Calendar, FileText, Video, Ambulance, PawPrint, TrendingUp, CheckCircle, Play } from "lucide-react";
+import heroImage from "@assets/stock_images/veterinarian_with_do_d508547d.jpg";
 
 export default function Landing() {
   return (
@@ -54,7 +55,7 @@ export default function Landing() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
+                  src={heroImage}
                   alt="Modern veterinary clinic with professional examination"
                   className="w-full h-auto"
                   data-testid="hero-image"
@@ -185,7 +186,7 @@ export default function Landing() {
               Ready to Get Started?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="cta-description">
-              Join thousands of pet owners and veterinary clinics who trust PetCare Pro for their pet care needs.
+              Join thousands of pet owners and veterinary clinics who trust Vetcepi for their pet care needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
@@ -211,7 +212,7 @@ export default function Landing() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Heart className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold">PetCare Pro</span>
+                <span className="text-xl font-bold">Vetcepi</span>
               </div>
               <p className="text-muted-foreground mb-4">
                 Modern pet care management for veterinarians and pet owners. Trusted by thousands worldwide.
@@ -250,7 +251,7 @@ export default function Landing() {
           </div>
 
           <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 PetCare Pro. All rights reserved. Made with ❤️ for pets and their families.</p>
+            <p>&copy; 2024 Vetcepi. All rights reserved. Made with ❤️ for pets and their families.</p>
           </div>
         </div>
       </footer>
