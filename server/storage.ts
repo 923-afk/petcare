@@ -56,6 +56,12 @@ export class MemStorage implements IStorage {
     
     // Create demo users
     this.initDemoData();
+    console.log('✅ Demo data initialized:', {
+      users: this.users.size,
+      pets: this.pets.size,
+      clinics: this.clinics.size,
+      appointments: this.appointments.size
+    });
   }
 
   private initDemoData() {
