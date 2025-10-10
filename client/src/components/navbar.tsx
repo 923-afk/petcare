@@ -16,7 +16,7 @@ export default function Navbar({ variant = "landing", onSignOut }: NavbarProps) 
           <Link href="/">
             <a className="flex items-center gap-2 hover-elevate rounded-lg px-3 py-2 -ml-3" data-testid="link-home">
               <Heart className="h-6 w-6 text-primary fill-primary" />
-              <span className="font-heading text-xl font-bold">Pet Palette</span>
+              <span className="font-heading text-xl font-bold">Vetcepi</span>
             </a>
           </Link>
           

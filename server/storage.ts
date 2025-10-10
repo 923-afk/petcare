@@ -104,6 +104,124 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
     };
     this.clinics.set(clinicId, clinic);
+
+    // Demo pets
+    const petId1 = randomUUID();
+    const pet1: Pet = {
+      id: petId1,
+      ownerId: ownerId,
+      name: "Buddy",
+      species: "Dog",
+      breed: "Golden Retriever",
+      gender: "Male",
+      birthDate: new Date("2020-05-15"),
+      weight: 25,
+      color: "Golden",
+      medicalNotes: "Friendly, loves treats",
+      createdAt: new Date(),
+    };
+    this.pets.set(petId1, pet1);
+
+    const petId2 = randomUUID();
+    const pet2: Pet = {
+      id: petId2,
+      ownerId: ownerId,
+      name: "Luna",
+      species: "Cat",
+      breed: "Persian",
+      gender: "Female",
+      birthDate: new Date("2021-03-20"),
+      weight: 4,
+      color: "White",
+      medicalNotes: "Calm, indoor cat",
+      createdAt: new Date(),
+    };
+    this.pets.set(petId2, pet2);
+
+    // Demo appointments
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const appointmentId1 = randomUUID();
+    const appointment1: Appointment = {
+      id: appointmentId1,
+      petId: petId1,
+      clinicId: clinicId,
+      appointmentDate: today.toISOString().split('T')[0],
+      appointmentTime: "14:00",
+      serviceType: "Checkup",
+      reason: "Annual wellness exam",
+      status: "pending",
+      notes: "Regular checkup and vaccination",
+      createdAt: new Date(),
+    };
+    this.appointments.set(appointmentId1, appointment1);
+
+    const appointmentId2 = randomUUID();
+    const appointment2: Appointment = {
+      id: appointmentId2,
+      petId: petId2,
+      clinicId: clinicId,
+      appointmentDate: today.toISOString().split('T')[0],
+      appointmentTime: "15:30",
+      serviceType: "Dental",
+      reason: "Teeth cleaning",
+      status: "confirmed",
+      notes: "Annual dental cleaning",
+      createdAt: new Date(),
+    };
+    this.appointments.set(appointmentId2, appointment2);
+
+    const appointmentId3 = randomUUID();
+    const appointment3: Appointment = {
+      id: appointmentId3,
+      petId: petId1,
+      clinicId: clinicId,
+      appointmentDate: tomorrow.toISOString().split('T')[0],
+      appointmentTime: "10:00",
+      serviceType: "Vaccination",
+      reason: "Rabies vaccination",
+      status: "pending",
+      notes: "Annual rabies shot",
+      createdAt: new Date(),
+    };
+    this.appointments.set(appointmentId3, appointment3);
+
+    // Demo medical records
+    const medicalRecordId1 = randomUUID();
+    const medicalRecord1: MedicalRecord = {
+      id: medicalRecordId1,
+      petId: petId1,
+      clinicId: clinicId,
+      recordType: "Checkup",
+      title: "Annual Wellness Exam",
+      diagnosis: "Healthy, slight ear infection",
+      treatment: "Prescribed ear drops",
+      medications: ["Otomax"],
+      weight: 25,
+      temperature: 101.5,
+      notes: "Follow up in 2 weeks",
+      visitDate: new Date("2024-01-15"),
+      createdAt: new Date(),
+    };
+    this.medicalRecords.set(medicalRecordId1, medicalRecord1);
+
+    // Demo vaccinations
+    const vaccinationId1 = randomUUID();
+    const vaccination1: Vaccination = {
+      id: vaccinationId1,
+      petId: petId1,
+      vaccineName: "Rabies",
+      manufacturer: "Zoetis",
+      lotNumber: "ABC123",
+      dateGiven: new Date("2024-01-15"),
+      nextDueDate: new Date("2025-01-15"),
+      veterinarian: "Dr. Smith",
+      notes: "No adverse reactions",
+      createdAt: new Date(),
+    };
+    this.vaccinations.set(vaccinationId1, vaccination1);
   }
 
   // User methods

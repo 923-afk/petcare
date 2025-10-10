@@ -1,92 +1,107 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { MoreVertical, Calendar, FileText } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Calendar, MapPin, Phone } from "lucide-react";
+import { Link } from "wouter";
 
-interface PetCardProps {
+interface Pet {
+  id: string;
   name: string;
   species: string;
   breed: string;
-  age: string;
-  imageUrl?: string;
-  onBookAppointment?: () => void;
-  onViewRecords?: () => void;
+  gender: string;
+  birthDate: string;
+  weight: number;
+  color: string;
+  medicalNotes: string;
+  photoUrl?: string;
 }
 
-export default function PetCard({
-  name,
-  species,
-  breed,
-  age,
-  imageUrl,
-  onBookAppointment,
-  onViewRecords,
-}: PetCardProps) {
-  const initials = name.substring(0, 2).toUpperCase();
-  
+interface PetCardProps {
+  pet: Pet;
+  showActions?: boolean;
+}
+
+export default function PetCard({ pet, showActions = true }: PetCardProps) {
+  const getAge = (birthDate: Date | string | null) => {
+    if (!birthDate) return "Unknown age";
+    const birth = new Date(birthDate);
+    const today = new Date();
+    const ageInYears = Math.floor((today.getTime() - birth.getTime()) / (1000 * 60 * 60 * 24 * 365));
+    return `${ageInYears} years old`;
+  };
+
+  const getSpeciesEmoji = (species: string) => {
+    switch (species.toLowerCase()) {
+      case 'dog': return '🐕';
+      case 'cat': return '🐱';
+      case 'rabbit': return '🐰';
+      case 'bird': return '🐦';
+      default: return '🐾';
+    }
+  };
+
   return (
-    <Card className="overflow-hidden hover-elevate transition-all duration-200" data-testid={`card-pet-${name.toLowerCase()}`}>
-      <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20">
-        {imageUrl ? (
-          <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-6xl">{species === 'Dog' ? '🐕' : species === 'Cat' ? '🐈' : '🐾'}</div>
-          </div>
-        )}
-        <div className="absolute top-3 right-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" data-testid={`button-menu-${name.toLowerCase()}`}>
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem data-testid="menu-edit">Edit Profile</DropdownMenuItem>
-              <DropdownMenuItem data-testid="menu-delete" className="text-destructive">Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-      
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
+    <Card className="hover:shadow-lg transition-all" data-testid={`pet-card-${pet.id}`}>
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3 mb-3">
+          {pet.photoUrl ? (
+            <img
+              src={pet.photoUrl}
+              alt={pet.name}
+              className="w-12 h-12 rounded-full object-cover"
+              data-testid={`pet-photo-${pet.id}`}
+            />
+          ) : (
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center text-2xl">
+              {getSpeciesEmoji(pet.species)}
+            </div>
+          )}
           <div>
-            <h3 className="font-heading text-xl font-semibold mb-1" data-testid={`text-pet-name-${name.toLowerCase()}`}>{name}</h3>
-            <p className="text-sm text-muted-foreground">{breed}</p>
+            <div className="font-semibold" data-testid={`pet-name-${pet.id}`}>
+              {pet.name}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {pet.breed} • {getAge(pet.birthDate)}
+            </div>
           </div>
-          <Badge variant="secondary" data-testid={`badge-age-${name.toLowerCase()}`}>{age}</Badge>
         </div>
         
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            className="flex-1" 
-            onClick={onBookAppointment}
-            data-testid={`button-book-${name.toLowerCase()}`}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Book
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1"
-            onClick={onViewRecords}
-            data-testid={`button-records-${name.toLowerCase()}`}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Records
-          </Button>
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Species:</span>
+            <Badge variant="outline" className="capitalize">{pet.species}</Badge>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Gender:</span>
+            <span className="capitalize">{pet.gender}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Weight:</span>
+            <span>{pet.weight} lbs</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Color:</span>
+            <span className="capitalize">{pet.color}</span>
+          </div>
         </div>
-      </div>
+
+        {showActions && (
+          <div className="flex space-x-2">
+            <Link href={`/pets/${pet.id}`}>
+              <Button size="sm" className="flex-1">
+                View Details
+              </Button>
+            </Link>
+            <Link href={`/booking?petId=${pet.id}`}>
+              <Button size="sm" variant="outline" className="flex-1">
+                <Calendar className="mr-1 h-3 w-3" />
+                Book
+              </Button>
+            </Link>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }

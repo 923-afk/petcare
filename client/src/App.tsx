@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
+import ClinicsPage from "@/pages/clinics";
 import OwnerDashboard from "@/pages/owner/dashboard";
 import OwnerBooking from "@/pages/owner/booking";
 import OwnerPets from "@/pages/owner/pets";
@@ -15,6 +16,8 @@ import PetProfile from "@/pages/owner/pet-profile";
 import ClinicDashboard from "@/pages/clinic/dashboard";
 import ClinicAppointments from "@/pages/clinic/appointments";
 import ClinicPatients from "@/pages/clinic/patients";
+import ClinicInventory from "@/pages/clinic/inventory";
+import ClinicVaccinations from "@/pages/clinic/vaccinations";
 import Navigation from "@/components/navigation";
 import { Chatbot } from "@/components/chatbot";
 import NotFound from "@/pages/not-found";
@@ -48,6 +51,7 @@ function Router() {
         <Route path="/" component={Landing} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
+        <Route path="/clinics" component={ClinicsPage} />
 
         {/* Owner routes */}
         {isAuthenticated && user?.userType === 'owner' && (
@@ -65,6 +69,8 @@ function Router() {
             <Route path="/dashboard" component={ClinicDashboard} />
             <Route path="/appointments" component={ClinicAppointments} />
             <Route path="/patients" component={ClinicPatients} />
+            <Route path="/inventory" component={ClinicInventory} />
+            <Route path="/vaccinations" component={ClinicVaccinations} />
           </>
         )}
 

@@ -5,7 +5,7 @@ import { loginSchema, registerSchema, insertPetSchema, insertAppointmentSchema, 
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { getChatResponse } from "./lib/openai";
+import { getChatResponse } from "./lib/gemini";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret";
 
@@ -195,7 +195,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/clinics/my", authenticateToken, async (req: any, res) => {
     try {
       const clinic = await storage.getClinicByUserId(req.user.userId);
-      res.json(clinic);
+      if (clinic) {
+        // Parse hours JSON and format for frontend
+        let hours = { weekdays: "Mon-Fri: 8:00-18:00", saturday: "Sat: 9:00-15:00", sunday: "Sun: Closed" };
+        try {
+          const parsedHours = JSON.parse(clinic.hours || '{}');
+          hours = {
+            weekdays: parsedHours["Mon-Fri"] || "Mon-Fri: 8:00-18:00",
+            saturday: parsedHours["Sat"] || "Sat: 9:00-15:00", 
+            sunday: parsedHours["Sun"] || "Sun: Closed"
+          };
+        } catch (e) {
+          // Use default hours if parsing fails
+        }
+
+        const formattedClinic = {
+          id: clinic.id,
+          clinicName: clinic.name,
+          address: clinic.address,
+          phone: clinic.phone,
+          email: clinic.email,
+          hours: hours,
+          services: clinic.services || []
+        };
+        res.json(formattedClinic);
+      } else {
+        res.status(404).json({ message: "Clinic not found" });
+      }
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -215,7 +241,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           appointments = [];
         }
       }
-      res.json(appointments);
+
+      // Enrich appointments with pet and owner names
+      const enrichedAppointments = await Promise.all(
+        appointments.map(async (appointment) => {
+          const pet = await storage.getPet(appointment.petId);
+          const owner = pet ? await storage.getUser(pet.ownerId) : null;
+          
+          return {
+            ...appointment,
+            petName: pet?.name || 'Unknown Pet',
+            ownerName: owner ? `${owner.firstName} ${owner.lastName}` : 'Unknown Owner'
+          };
+        })
+      );
+
+      res.json(enrichedAppointments);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

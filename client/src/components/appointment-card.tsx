@@ -1,99 +1,212 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Calendar, Clock, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { format } from "date-fns";
 
-type AppointmentStatus = "pending" | "confirmed" | "completed" | "cancelled";
-
-interface AppointmentCardProps {
-  petName: string;
-  petImageUrl?: string;
-  clinicName: string;
-  date: string;
-  time: string;
-  status: AppointmentStatus;
-  notes?: string;
-  onStatusChange?: (status: AppointmentStatus) => void;
+interface Pet {
+  id: string;
+  name: string;
+  species: string;
+  breed: string;
+  gender: string;
+  birthDate: string;
+  weight: number;
+  color: string;
+  medicalNotes: string;
+  photoUrl?: string;
 }
 
-const statusConfig = {
-  pending: { label: "Pending", className: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
-  confirmed: { label: "Confirmed", className: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
-  completed: { label: "Completed", className: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" },
-  cancelled: { label: "Cancelled", className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" },
-};
+interface Clinic {
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
+interface Appointment {
+  id: string;
+  petId: string;
+  clinicId: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  serviceType: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "in-progress";
+  reason: string;
+  cost?: number;
+}
+
+interface AppointmentCardProps {
+  appointment: Appointment;
+  pet?: Pet;
+  clinic?: Clinic;
+  showActions?: boolean;
+  userType?: 'owner' | 'clinic';
+  onStatusChange?: (appointmentId: string, status: string) => void;
+}
 
 export default function AppointmentCard({
-  petName,
-  petImageUrl,
-  clinicName,
-  date,
-  time,
-  status,
-  notes,
+  appointment,
+  pet,
+  clinic,
+  showActions = true,
+  userType = 'owner',
   onStatusChange,
 }: AppointmentCardProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-secondary/10 text-secondary';
+      case 'pending': return 'bg-accent/10 text-accent';
+      case 'in-progress': return 'bg-primary/10 text-primary';
+      case 'completed': return 'bg-muted text-muted-foreground';
+      case 'cancelled': return 'bg-destructive/10 text-destructive';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getServiceIcon = (serviceType: string) => {
+    switch (serviceType.toLowerCase()) {
+      case 'checkup':
+      case 'general checkup': return '🩺';
+      case 'vaccination': return '💉';
+      case 'dental': return '🦷';
+      case 'surgery': return '🏥';
+      default: return '📋';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMM d, yyyy');
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatTime = (timeString: string) => {
+    try {
+      return timeString;
+    } catch {
+      return timeString;
+    }
+  };
+
   return (
-    <Card className="p-6 hover-elevate" data-testid={`card-appointment-${petName.toLowerCase()}`}>
-      <div className="flex items-start gap-4">
-        <Avatar className="h-14 w-14">
-          <AvatarImage src={petImageUrl} alt={petName} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {petName.substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-3">
+    <Card className="hover:shadow-md transition-all" data-testid={`appointment-card-${appointment.id}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center space-x-3">
+            <div className="text-2xl">{getServiceIcon(appointment.serviceType)}</div>
             <div>
-              <h3 className="font-semibold text-lg" data-testid="text-pet-name">{petName}</h3>
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                <MapPin className="h-3 w-3" />
-                {clinicName}
-              </p>
+              <div className="font-semibold" data-testid={`appointment-service-${appointment.id}`}>
+                {appointment.serviceType}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {userType === 'owner' ? clinic?.name : pet?.name}
+              </div>
             </div>
-            <Badge className={statusConfig[status].className} data-testid="badge-status">
-              {statusConfig[status].label}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Badge 
+              className={getStatusColor(appointment.status)}
+              data-testid={`appointment-status-${appointment.id}`}
+            >
+              {appointment.status}
             </Badge>
+            {showActions && onStatusChange && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem 
+                    onClick={() => onStatusChange(appointment.id, 'confirmed')}
+                    disabled={appointment.status === 'confirmed'}
+                  >
+                    Confirm
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onStatusChange(appointment.id, 'in-progress')}
+                    disabled={appointment.status === 'in-progress'}
+                  >
+                    Start
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onStatusChange(appointment.id, 'completed')}
+                    disabled={appointment.status === 'completed'}
+                  >
+                    Complete
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => onStatusChange(appointment.id, 'cancelled')}
+                    disabled={appointment.status === 'cancelled'}
+                    className="text-destructive"
+                  >
+                    Cancel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
-          
-          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-            <div className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              <span data-testid="text-date">{date}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              <span data-testid="text-time">{time}</span>
-            </div>
+        </div>
+
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="mr-2 h-4 w-4" />
+            {formatDate(appointment.appointmentDate)}
           </div>
-          
-          {notes && (
-            <p className="text-sm text-muted-foreground mb-4">{notes}</p>
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Clock className="mr-2 h-4 w-4" />
+            {formatTime(appointment.appointmentTime)}
+          </div>
+          {clinic?.address && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              <MapPin className="mr-2 h-4 w-4" />
+              {clinic.address}
+            </div>
           )}
-          
-          {status === "pending" && onStatusChange && (
-            <div className="flex gap-2">
-              <Button 
-                size="sm" 
-                onClick={() => onStatusChange("confirmed")}
-                data-testid="button-confirm"
-              >
-                Confirm
-              </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => onStatusChange("cancelled")}
-                data-testid="button-cancel"
-              >
-                Cancel
-              </Button>
+          {appointment.reason && (
+            <div className="text-sm text-muted-foreground">
+              <strong>Reason:</strong> {appointment.reason}
+            </div>
+          )}
+          {appointment.cost && (
+            <div className="text-sm font-medium">
+              <strong>Cost:</strong> ${appointment.cost}
             </div>
           )}
         </div>
-      </div>
+
+        {userType === 'clinic' && pet && (
+          <div className="border-t pt-3">
+            <div className="text-sm">
+              <strong>Pet Details:</strong> {pet.name} ({pet.breed})
+            </div>
+          </div>
+        )}
+
+        {userType === 'owner' && clinic && (
+          <div className="border-t pt-3">
+            <div className="text-sm">
+              <strong>Clinic:</strong> {clinic.name}
+            </div>
+            {clinic.phone && (
+              <div className="text-sm text-muted-foreground">
+                <strong>Phone:</strong> {clinic.phone}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }

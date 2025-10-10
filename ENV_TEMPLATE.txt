@@ -1,0 +1,47 @@
+# Copy this file to .env and fill in your values
+
+# ============================================
+# FREE AI CHATBOT - Google Gemini API
+# ============================================
+# Get your FREE API key from: https://makersuite.google.com/app/apikey
+# 
+# Google Gemini offers a generous FREE tier:
+# - 60 requests per minute
+# - 1,500 requests per day
+# - No credit card required!
+#
+# If you don't provide a GEMINI_API_KEY, the chatbot will use
+# built-in rule-based responses (still helpful, but less intelligent)
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# ============================================
+# Session Security
+# ============================================
+# Generate a random secret key for JWT tokens
+# You can use: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+SESSION_SECRET=your-secret-key-here
+
+# ============================================
+# Database (if using external DB)
+# ============================================
+# DATABASE_URL=postgresql://user:password@host:port/database
+
+# ============================================
+# SUPABASE Configuration (EU Region)
+# ============================================
+# Get these from: https://app.supabase.com/project/_/settings/api
+# 1. Create a Supabase project (select EU region)
+# 2. Go to Settings > API
+# 3. Copy the Project URL and anon/public key
+
+SUPABASE_URL=your-supabase-project-url-here
+SUPABASE_ANON_KEY=your-supabase-anon-key-here
+
+# ============================================
+# Medical Data Encryption
+# ============================================
+# AES-256 encryption key for medical records
+# Generate a secure key with:
+# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+ENCRYPTION_KEY=your-64-character-hex-encryption-key-here
+

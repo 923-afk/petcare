@@ -30,10 +30,12 @@ export default function Landing() {
                     Book Appointment
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="h-12 px-8" data-testid="cta-watch-demo">
-                  <Play className="mr-2 h-5 w-5" />
-                  Watch Demo
-                </Button>
+                <Link href="/login">
+                  <Button variant="outline" size="lg" className="h-12 px-8" data-testid="cta-watch-demo">
+                    <Play className="mr-2 h-5 w-5" />
+                    Watch Demo
+                  </Button>
+                </Link>
               </div>
 
               <div className="grid grid-cols-3 gap-8 pt-8 border-t">
@@ -222,30 +224,30 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4">For Pet Owners</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Find Veterinarians</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Book Appointments</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Health Records</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Emergency Care</a></li>
+                <li><Link href="/clinics"><span className="hover:text-primary transition-colors cursor-pointer">Find Veterinarians</span></Link></li>
+                <li><Link href="/register"><span className="hover:text-primary transition-colors cursor-pointer">Book Appointments</span></Link></li>
+                <li><Link href="/login"><span className="hover:text-primary transition-colors cursor-pointer">Health Records</span></Link></li>
+                <li><Link href="/clinics"><span className="hover:text-primary transition-colors cursor-pointer">Emergency Care</span></Link></li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold mb-4">For Clinics</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Practice Management</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Appointment Scheduling</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Patient Records</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Analytics & Reports</a></li>
+                <li><Link href="/register"><span className="hover:text-primary transition-colors cursor-pointer">Practice Management</span></Link></li>
+                <li><Link href="/register"><span className="hover:text-primary transition-colors cursor-pointer">Appointment Scheduling</span></Link></li>
+                <li><Link href="/register"><span className="hover:text-primary transition-colors cursor-pointer">Patient Records</span></Link></li>
+                <li><Link href="/register"><span className="hover:text-primary transition-colors cursor-pointer">Analytics & Reports</span></Link></li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contact Support</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Terms of Service</a></li>
+                <li><Link href="/login"><span className="hover:text-primary transition-colors cursor-pointer">Help Center</span></Link></li>
+                <li><Link href="/login"><span className="hover:text-primary transition-colors cursor-pointer">Contact Support</span></Link></li>
+                <li><Link href="/"><span className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</span></Link></li>
+                <li><Link href="/"><span className="hover:text-primary transition-colors cursor-pointer">Terms of Service</span></Link></li>
               </ul>
             </div>
           </div>
