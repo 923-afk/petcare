@@ -1,9 +1,25 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
-import { loginSchema } from '../../shared/schema';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret";
+
+// Demo users data
+const DEMO_USERS = {
+  "owner.demo@example.com": {
+    id: "owner-demo-id",
+    email: "owner.demo@example.com",
+    name: "Demo Owner",
+    userType: "owner",
+    password: "demo1234"
+  },
+  "clinic.demo@example.com": {
+    id: "clinic-demo-id", 
+    email: "clinic.demo@example.com",
+    name: "Demo Clinic",
+    userType: "clinic",
+    password: "demo1234"
+  }
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
@@ -20,37 +36,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const data = loginSchema.parse(req.body);
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
     // Check demo accounts
-    if (data.email === "owner.demo@example.com" && data.password === "demo1234") {
-      const user = await storage.getUserByEmail(data.email);
-      if (user) {
-        const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
-        return res.json({ token, user: { ...user, password: undefined } });
-      }
+    const user = DEMO_USERS[email as keyof typeof DEMO_USERS];
+    
+    if (user && user.password === password) {
+      const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
+      return res.json({ 
+        token, 
+        user: { 
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          userType: user.userType
+        } 
+      });
     }
 
-    if (data.email === "clinic.demo@example.com" && data.password === "demo1234") {
-      const user = await storage.getUserByEmail(data.email);
-      if (user) {
-        const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
-        return res.json({ token, user: { ...user, password: undefined } });
-      }
-    }
-
-    // Find user
-    const user = await storage.getUserByEmail(data.email);
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // For demo purposes, accept any password for existing users
-    const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
-    res.json({ token, user: { ...user, password: undefined } });
+    return res.status(400).json({ message: "Invalid credentials" });
 
   } catch (error: any) {
     console.error('Login error:', error);
-    res.status(400).json({ message: error.message || 'Login failed' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }

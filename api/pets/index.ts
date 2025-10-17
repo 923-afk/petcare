@@ -1,8 +1,31 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { storage } from '../../server/storage';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret";
+
+// Mock pets data
+const MOCK_PETS = [
+  {
+    id: "pet-1",
+    name: "Buddy",
+    species: "Dog",
+    breed: "Golden Retriever",
+    age: 3,
+    ownerId: "owner-demo-id",
+    medicalHistory: [],
+    vaccinations: []
+  },
+  {
+    id: "pet-2", 
+    name: "Whiskers",
+    species: "Cat",
+    breed: "Persian",
+    age: 2,
+    ownerId: "owner-demo-id",
+    medicalHistory: [],
+    vaccinations: []
+  }
+];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
@@ -23,20 +46,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const user = await storage.getUser(decoded.userId);
     
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
     if (req.method === 'GET') {
-      const pets = await storage.getPetsByOwner(decoded.userId);
-      res.json(pets);
+      // Return pets for owner demo user
+      if (decoded.userId === "owner-demo-id") {
+        res.json(MOCK_PETS);
+      } else {
+        res.json([]);
+      }
     } else {
       res.status(405).json({ message: 'Method not allowed' });
     }
   } catch (error: any) {
     console.error('Pets API error:', error);
-    res.status(500).json({ message: error.message || 'Failed to get pets' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Vercel API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Vercel API</h1>
+    
+    <div>
+        <label>Vercel URL: </label>
+        <input type="text" id="vercelUrl" placeholder="https://your-app.vercel.app" style="width: 300px;">
+        <button onclick="testAll()">Test All APIs</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        async function testAPI(name, url, options = {}) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test';
+            resultDiv.innerHTML = `<h3>${name}</h3>`;
+            document.getElementById('results').appendChild(resultDiv);
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className += ' success';
+                    resultDiv.innerHTML += `<p>✅ Success (${response.status})</p>`;
+                    resultDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.className += ' error';
+                    resultDiv.innerHTML += `<p>❌ Failed (${response.status})</p>`;
+                    resultDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (error) {
+                resultDiv.className += ' error';
+                resultDiv.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testAll() {
+            const baseUrl = document.getElementById('vercelUrl').value;
+            if (!baseUrl) {
+                alert('Please enter your Vercel URL');
+                return;
+            }
+
+            document.getElementById('results').innerHTML = '';
+
+            // Test 1: Login
+            await testAPI('Login (Owner)', `${baseUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'owner.demo@example.com',
+                    password: 'demo1234'
+                })
+            });
+
+            // Test 2: Login (Clinic)
+            await testAPI('Login (Clinic)', `${baseUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'clinic.demo@example.com',
+                    password: 'demo1234'
+                })
+            });
+
+            // Test 3: Get Clinics (no auth needed)
+            await testAPI('Get Clinics', `${baseUrl}/api/clinics`);
+
+            // Test 4: Chat API
+            await testAPI('Chat API', `${baseUrl}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Hello'
+                })
+            });
+        }
+    </script>
+</body>
+</html>
