@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, useAuth } from "@/hooks/use-auth";
+import { SupabaseAuthProvider, useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { useEffect } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
@@ -23,7 +23,7 @@ import { Chatbot } from "@/components/chatbot";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user } = useSupabaseAuth();
   const [location] = useLocation();
   const isAuthPage = location === '/login' || location === '/register';
 
@@ -31,18 +31,20 @@ function Router() {
     const themes = ['owner-theme', 'clinic-theme', 'vet-theme'];
     themes.forEach(theme => document.documentElement.classList.remove(theme));
     
-    if (user?.userType === 'owner') {
-      document.documentElement.classList.add('owner-theme');
-    } else if (user?.userType === 'clinic') {
-      document.documentElement.classList.add('clinic-theme');
-    } else if (user?.userType === 'vet') {
-      document.documentElement.classList.add('vet-theme');
-    }
+        // 從 Supabase 用戶元數據獲取用戶類型
+        const userType = user?.user_metadata?.userType;
+        if (userType === 'owner') {
+          document.documentElement.classList.add('owner-theme');
+        } else if (userType === 'clinic') {
+          document.documentElement.classList.add('clinic-theme');
+        } else if (userType === 'vet') {
+          document.documentElement.classList.add('vet-theme');
+        }
     
     return () => {
       themes.forEach(theme => document.documentElement.classList.remove(theme));
     };
-  }, [user?.userType]);
+  }, [user?.user_metadata?.userType]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -53,8 +55,8 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/clinics" component={ClinicsPage} />
 
-        {/* Owner routes */}
-        {isAuthenticated && user?.userType === 'owner' && (
+            {/* Owner routes */}
+            {isAuthenticated && user?.user_metadata?.userType === 'owner' && (
           <>
             <Route path="/dashboard" component={OwnerDashboard} />
             <Route path="/booking" component={OwnerBooking} />
@@ -63,8 +65,8 @@ function Router() {
           </>
         )}
 
-        {/* Clinic routes */}
-        {isAuthenticated && user?.userType === 'clinic' && (
+            {/* Clinic routes */}
+            {isAuthenticated && user?.user_metadata?.userType === 'clinic' && (
           <>
             <Route path="/dashboard" component={ClinicDashboard} />
             <Route path="/appointments" component={ClinicAppointments} />
@@ -85,14 +87,14 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <Router />
-          <Toaster />
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <SupabaseAuthProvider>
+              <Router />
+              <Toaster />
+            </SupabaseAuthProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
   );
 }
 

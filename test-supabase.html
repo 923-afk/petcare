@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 登入測試</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .demo-button {
+            background: #28a745;
+            margin: 10px 5px;
+            padding: 15px 25px;
+            font-size: 16px;
+        }
+        .demo-button:hover { background: #1e7e34; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Supabase 登入測試</h1>
+        
+        <div class="test-section info">
+            <h3>📋 設定步驟</h3>
+            <p>1. 在 Supabase 中創建專案</p>
+            <p>2. 設定環境變數</p>
+            <p>3. 創建測試用戶</p>
+            <p>4. 測試登入功能</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Supabase 配置</h3>
+            <input type="text" id="supabaseUrl" class="url-input" placeholder="https://your-project.supabase.co">
+            <input type="text" id="supabaseKey" class="url-input" placeholder="your-anon-key">
+            <button onclick="initSupabase()">初始化 Supabase</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 連接測試</h3>
+            <button onclick="testConnection()">測試 Supabase 連接</button>
+            <div id="connectionResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👤 登入測試</h3>
+            <input type="email" id="email" placeholder="電子郵件" value="owner.demo@example.com">
+            <input type="password" id="password" placeholder="密碼" value="demo1234">
+            <button onclick="testLogin()">測試登入</button>
+            <div id="loginResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 用戶信息</h3>
+            <button onclick="getCurrentUser()">獲取當前用戶</button>
+            <button onclick="signOut()">登出</button>
+            <div id="userResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 設定指南</h3>
+            <div id="setupGuide" class="result">
+1. 前往 https://supabase.com
+2. 創建新專案
+3. 在 Authentication → Users 中創建用戶
+4. 複製專案 URL 和 API Key
+5. 在應用程式中設定環境變數
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let supabase = null;
+        
+        function initSupabase() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                showResult('connectionResult', '❌ 請輸入 Supabase URL 和 API Key', 'error');
+                return;
+            }
+            
+            try {
+                supabase = window.supabase.createClient(url, key);
+                showResult('connectionResult', '✅ Supabase 初始化成功', 'success');
+            } catch (error) {
+                showResult('connectionResult', `❌ 初始化失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testConnection() {
+            if (!supabase) {
+                showResult('connectionResult', '❌ 請先初始化 Supabase', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                if (error) {
+                    showResult('connectionResult', `❌ 連接錯誤: ${error.message}`, 'error');
+                } else {
+                    showResult('connectionResult', `✅ 連接成功\nSession: ${JSON.stringify(data, null, 2)}`, 'success');
+                }
+            } catch (error) {
+                showResult('connectionResult', `❌ 連接失敗: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            if (!supabase) {
+                showResult('loginResult', '❌ 請先初始化 Supabase', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                showResult('loginResult', '🔄 正在登入...', 'info');
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) {
+                    showResult('loginResult', `❌ 登入失敗: ${error.message}`, 'error');
+                } else {
+                    showResult('loginResult', `✅ 登入成功!\n用戶: ${JSON.stringify(data.user, null, 2)}`, 'success');
+                }
+            } catch (error) {
+                showResult('loginResult', `❌ 登入錯誤: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getCurrentUser() {
+            if (!supabase) {
+                showResult('userResult', '❌ 請先初始化 Supabase', 'error');
+                return;
+            }
+            
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                
+                if (error) {
+                    showResult('userResult', `❌ 獲取用戶失敗: ${error.message}`, 'error');
+                } else if (user) {
+                    showResult('userResult', `✅ 當前用戶:\n${JSON.stringify(user, null, 2)}`, 'success');
+                } else {
+                    showResult('userResult', 'ℹ️ 沒有登入的用戶', 'info');
+                }
+            } catch (error) {
+                showResult('userResult', `❌ 錯誤: ${error.message}`, 'error');
+            }
+        }
+        
+        async function signOut() {
+            if (!supabase) {
+                showResult('userResult', '❌ 請先初始化 Supabase', 'error');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.auth.signOut();
+                
+                if (error) {
+                    showResult('userResult', `❌ 登出失敗: ${error.message}`, 'error');
+                } else {
+                    showResult('userResult', '✅ 登出成功', 'success');
+                }
+            } catch (error) {
+                showResult('userResult', `❌ 登出錯誤: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+    </script>
+</body>
+</html>
