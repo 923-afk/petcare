@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertPetSchema, type Pet, type InsertPet } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import { Link } from "wouter";
 export default function OwnerPets() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
 
   const { data: pets, isLoading } = useQuery<Pet[]>({
     queryKey: ["/api/pets"],
@@ -74,7 +74,8 @@ export default function OwnerPets() {
       });
       return;
     }
-    addPetMutation.mutate({ ...data, ownerId: user.id });
+    // ownerId 會在 API 層自動設置
+    addPetMutation.mutate(data);
   };
 
   const calculateAge = (birthDate: Date | string | null | undefined) => {

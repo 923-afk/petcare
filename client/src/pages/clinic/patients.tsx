@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMedicalRecordSchema, type Pet, type MedicalRecord, type Vaccination, type InsertMedicalRecord, type Clinic } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export default function ClinicPatients() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isAddRecordDialogOpen, setIsAddRecordDialogOpen] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
 
   const { data: pets, isLoading: petsLoading } = useQuery<Pet[]>({
     queryKey: ["/api/pets"],

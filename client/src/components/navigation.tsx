@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { Heart, Calendar, PawPrint, Users, LogOut } from "lucide-react";
 import {
   DropdownMenu,
@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function Navigation() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, signOut } = useSupabaseAuth();
   const [location, setLocation] = useLocation();
 
   if (location === "/login" || location === "/register") {
     return null;
   }
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     setLocation("/");
   };
 
@@ -45,7 +45,7 @@ export default function Navigation() {
             </>
           ) : (
             <>
-              {user?.userType === 'owner' && (
+              {user?.user_metadata?.userType === 'owner' && (
                 <>
                   <Link href="/dashboard">
                     <Button variant="ghost" className="hidden md:inline-flex" data-testid="nav-dashboard">
@@ -67,7 +67,7 @@ export default function Navigation() {
                 </>
               )}
 
-              {user?.userType === 'clinic' && (
+              {user?.user_metadata?.userType === 'clinic' && (
                 <>
                   <Link href="/dashboard">
                     <Button variant="ghost" className="hidden md:inline-flex" data-testid="nav-clinic-dashboard">
@@ -92,7 +92,7 @@ export default function Navigation() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" data-testid="user-menu">
-                    {user?.firstName} {user?.lastName}
+                    {user?.user_metadata?.firstName || user?.email?.split('@')[0]} {user?.user_metadata?.lastName || ''}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" data-testid="user-menu-content">

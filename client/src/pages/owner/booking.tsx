@@ -5,7 +5,7 @@ import { insertAppointmentSchema, type Pet, type Clinic, type Appointment, type 
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ type BookingFormData = z.infer<typeof bookingFormSchema>;
 export default function OwnerBooking() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
 
   const { data: pets, isLoading: petsLoading } = useQuery<Pet[]>({
     queryKey: ["/api/pets"],
@@ -51,12 +51,9 @@ export default function OwnerBooking() {
 
   const bookAppointmentMutation = useMutation({
     mutationFn: async (data: BookingFormData) => {
-      if (!user?.id) {
-        throw new Error("You must be logged in to book an appointment");
-      }
+      // ownerId 會在 API 層自動設置
       return apiRequest<Appointment>("POST", "/api/appointments", {
         ...data,
-        ownerId: user.id,
         appointmentDate: new Date(data.appointmentDate).toISOString(),
       });
     },
