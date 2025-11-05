@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
-import { storage } from '../../server/storage';
+import { storage } from '../../server/storage.js';
 
 const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret';
 
