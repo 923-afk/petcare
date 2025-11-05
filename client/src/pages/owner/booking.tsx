@@ -5,7 +5,7 @@ import { insertAppointmentSchema, type Pet, type Clinic, type Appointment, type 
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ type BookingFormData = z.infer<typeof bookingFormSchema>;
 export default function OwnerBooking() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user } = useSupabaseAuth();
+  const { user } = useAuth();
 
   const { data: pets, isLoading: petsLoading } = useQuery<Pet[]>({
     queryKey: ["/api/pets"],

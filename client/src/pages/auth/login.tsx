@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginData } from "@shared/schema";
-import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { Link } from "wouter";
 export default function Login() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn } = useSupabaseAuth();
+  const { login } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<LoginData>({
@@ -28,11 +28,7 @@ export default function Login() {
 
   const onSubmit = async (data: LoginData) => {
     try {
-      const { error } = await signIn(data.email, data.password);
-      
-      if (error) {
-        throw new Error(error.message);
-      }
+      await login(data);
       
       toast({
         title: "Welcome back!",

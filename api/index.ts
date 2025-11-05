@@ -10,9 +10,11 @@ app.use(express.urlencoded({ extended: false }));
 
 // Enable CORS for Vercel
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '*';
+  res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
@@ -30,11 +32,23 @@ console.log('✅ Demo data status:', {
   appointments: storage.appointments.size
 });
 
-// Register routes
-(async () => {
-  await registerRoutes(app);
-  registerSupabasePetsRoutes(app);
-})();
+// Register routes - for Vercel, we need to handle this differently
+let routesRegistered = false;
+
+async function initializeRoutes() {
+  if (!routesRegistered) {
+    // registerRoutes returns a Server, but we don't need it for Vercel
+    const server = await registerRoutes(app);
+    registerSupabasePetsRoutes(app);
+    routesRegistered = true;
+    console.log('✅ Routes registered successfully');
+  }
+}
+
+// Initialize routes immediately
+initializeRoutes().catch(err => {
+  console.error('❌ Failed to initialize routes:', err);
+});
 
 // Error handler
 app.use((err: any, _req: any, res: any, _next: any) => {
@@ -44,4 +58,10 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(status).json({ message });
 });
 
-export default app;
+// Vercel serverless function handler
+export default async function handler(req: any, res: any) {
+  // Ensure routes are registered before handling request
+  await initializeRoutes();
+  // Handle the request
+  return app(req, res);
+}

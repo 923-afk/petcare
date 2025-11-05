@@ -60,7 +60,7 @@ export function Chatbot() {
     }
   };
 
-  const quickPrompts = user?.userType === "owner" 
+  const quickPrompts = user?.user_metadata?.userType === "owner" 
     ? [
         "How do I book an appointment?",
         "What vaccinations does my pet need?",
@@ -93,7 +93,7 @@ export function Chatbot() {
             Vetcepi Assistant
           </SheetTitle>
           <p className="text-sm text-muted-foreground">
-            Ask me anything about {user?.userType === "owner" ? "pet care and appointments" : "managing your clinic"}
+            Ask me anything about {user?.user_metadata?.userType === "owner" ? "pet care and appointments" : "managing your clinic"}
           </p>
         </SheetHeader>
 

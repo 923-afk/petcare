@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterData } from "@shared/schema";
-import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,7 @@ export default function Register() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signUp } = useSupabaseAuth();
+  const { register } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<RegisterData>({
@@ -36,17 +36,7 @@ export default function Register() {
 
   const onSubmit = async (data: RegisterData) => {
     try {
-      const { error } = await signUp(data.email, data.password, {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        userType: data.userType,
-        phone: data.phone,
-        address: data.address
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
+      await register(data);
       
       toast({
         title: "Welcome to Vetcepi!",

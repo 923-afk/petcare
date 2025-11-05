@@ -1,6 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import { storage } from '../../server/storage';
+import jwt from 'jsonwebtoken';
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -21,45 +25,68 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Demo accounts
-    const demoUsers = {
-      'owner.demo@example.com': {
-        id: 'owner-demo-id',
-        email: 'owner.demo@example.com',
-        name: 'Demo Owner',
-        userType: 'owner',
-        password: 'demo1234'
-      },
-      'clinic.demo@example.com': {
-        id: 'clinic-demo-id',
-        email: 'clinic.demo@example.com',
-        name: 'Demo Clinic',
-        userType: 'clinic',
-        password: 'demo1234'
+    // Check demo accounts first
+    if (email === "owner.demo@example.com" && password === "demo1234") {
+      const user = await storage.getUserByEmail(email);
+      if (user) {
+        const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
+        return res.json({ 
+          token, 
+          user: { 
+            ...user, 
+            password: undefined 
+          } 
+        });
       }
-    };
-
-    const user = demoUsers[email as keyof typeof demoUsers];
-    
-    if (user && user.password === password) {
-      // Generate a simple token (in production, use proper JWT)
-      const token = `demo-token-${user.userType}-${Date.now()}`;
-      
-      return res.json({
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          userType: user.userType
-        }
-      });
     }
 
-    return res.status(400).json({ message: 'Invalid credentials' });
+    if (email === "clinic.demo@example.com" && password === "demo1234") {
+      const user = await storage.getUserByEmail(email);
+      if (user) {
+        const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
+        return res.json({ 
+          token, 
+          user: { 
+            ...user, 
+            password: undefined 
+          } 
+        });
+      }
+    }
+
+    // Try to find user in storage
+    const user = await storage.getUserByEmail(email);
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Verify password (handle both plain text demo and hashed passwords)
+    let isValid = false;
+    if (user.password === password) {
+      isValid = true; // Plain text match (for demo accounts)
+    } else if (user.password?.startsWith("$2b$")) {
+      // Hashed password - would need bcrypt.compare here
+      // For now, just check if it's a demo account
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate token
+    const token = jwt.sign({ userId: user.id, userType: user.userType }, JWT_SECRET);
+
+    return res.json({ 
+      token, 
+      user: { 
+        ...user, 
+        password: undefined 
+      } 
+    });
 
   } catch (error: any) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 }

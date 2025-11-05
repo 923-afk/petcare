@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SupabaseAuthProvider, useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
@@ -23,7 +23,7 @@ import { Chatbot } from "@/components/chatbot";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, user } = useSupabaseAuth();
+  const { isAuthenticated, user } = useAuth();
   const [location] = useLocation();
   const isAuthPage = location === '/login' || location === '/register';
 
@@ -31,8 +31,8 @@ function Router() {
     const themes = ['owner-theme', 'clinic-theme', 'vet-theme'];
     themes.forEach(theme => document.documentElement.classList.remove(theme));
     
-        // 從 Supabase 用戶元數據獲取用戶類型
-        const userType = user?.user_metadata?.userType;
+        // 從用戶數據獲取用戶類型
+        const userType = user?.userType;
         if (userType === 'owner') {
           document.documentElement.classList.add('owner-theme');
         } else if (userType === 'clinic') {
@@ -44,7 +44,21 @@ function Router() {
     return () => {
       themes.forEach(theme => document.documentElement.classList.remove(theme));
     };
-  }, [user?.user_metadata?.userType]);
+  }, [user?.userType]);
+
+  // Dashboard component that routes based on user type
+  const Dashboard = () => {
+    if (!isAuthenticated || !user) {
+      return <NotFound />;
+    }
+    if (user.userType === 'owner') {
+      return <OwnerDashboard />;
+    }
+    if (user.userType === 'clinic') {
+      return <ClinicDashboard />;
+    }
+    return <NotFound />;
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,20 +69,21 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/clinics" component={ClinicsPage} />
 
-            {/* Owner routes */}
-            {isAuthenticated && user?.user_metadata?.userType === 'owner' && (
+        {/* Dashboard - routes based on user type */}
+        {isAuthenticated && <Route path="/dashboard" component={Dashboard} />}
+
+        {/* Owner routes */}
+        {isAuthenticated && user?.userType === 'owner' && (
           <>
-            <Route path="/dashboard" component={OwnerDashboard} />
             <Route path="/booking" component={OwnerBooking} />
             <Route path="/pets" component={OwnerPets} />
             <Route path="/pets/:id" component={PetProfile} />
           </>
         )}
 
-            {/* Clinic routes */}
-            {isAuthenticated && user?.user_metadata?.userType === 'clinic' && (
+        {/* Clinic routes */}
+        {isAuthenticated && user?.userType === 'clinic' && (
           <>
-            <Route path="/dashboard" component={ClinicDashboard} />
             <Route path="/appointments" component={ClinicAppointments} />
             <Route path="/patients" component={ClinicPatients} />
             <Route path="/inventory" component={ClinicInventory} />
@@ -89,10 +104,10 @@ function App() {
   return (
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
-            <SupabaseAuthProvider>
+            <AuthProvider>
               <Router />
               <Toaster />
-            </SupabaseAuthProvider>
+            </AuthProvider>
           </TooltipProvider>
         </QueryClientProvider>
   );

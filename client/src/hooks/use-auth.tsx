@@ -16,13 +16,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [userData, setUserData] = useState<User | null>(() => {
+    // Try to get user from localStorage on init
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  // Fetch current user if token exists
-  const { data: user, isLoading } = useQuery<User>({
+  // Fetch current user if token exists but no user data
+  const { data: fetchedUser, isLoading } = useQuery<User>({
     queryKey: ["/api/users/me"],
-    enabled: !!token,
+    enabled: !!token && !userData,
     retry: false,
   });
+
+  // Use fetched user if available, otherwise use stored user data
+  const user = fetchedUser || userData;
 
   // Login mutation
   const loginMutation = useMutation({
@@ -32,7 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       setToken(data.token);
+      setUserData(data.user);
       queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
     },
   });
@@ -45,14 +55,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       setToken(data.token);
+      setUserData(data.user);
       queryClient.invalidateQueries({ queryKey: ["/api/users/me"] });
     },
   });
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setToken(null);
+    setUserData(null);
     queryClient.clear();
   };
 

@@ -1,6 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import jwt from 'jsonwebtoken';
+import { storage } from '../../server/storage';
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+const JWT_SECRET = process.env.SESSION_SECRET || 'fallback-secret';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -22,33 +26,25 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ message: 'Access token required' });
     }
 
-    // Demo users data
-    const demoUsers = {
-      'owner-demo-id': {
-        id: 'owner-demo-id',
-        email: 'owner.demo@example.com',
-        name: 'Demo Owner',
-        userType: 'owner'
-      },
-      'clinic-demo-id': {
-        id: 'clinic-demo-id',
-        email: 'clinic.demo@example.com',
-        name: 'Demo Clinic',
-        userType: 'clinic'
-      }
-    };
-
-    // Simple token validation (in production, use proper JWT verification)
-    if (token.startsWith('demo-token-owner-')) {
-      res.json(demoUsers['owner-demo-id']);
-    } else if (token.startsWith('demo-token-clinic-')) {
-      res.json(demoUsers['clinic-demo-id']);
-    } else {
-      res.status(401).json({ message: 'Invalid token' });
+    // Verify JWT token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      return res.status(403).json({ message: 'Invalid token' });
     }
+
+    // Get user from storage
+    const user = await storage.getUser(decoded.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return user without password
+    return res.json({ ...user, password: undefined });
     
   } catch (error: any) {
     console.error('Get user error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 }

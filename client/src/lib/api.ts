@@ -11,7 +11,6 @@ import {
   vaccinationsDb,
   profileDb 
 } from './supabase-db';
-import { useSupabaseAuth } from '@/hooks/use-supabase-auth';
 import type { 
   Pet, InsertPet,
   Clinic, InsertClinic,
@@ -20,12 +19,18 @@ import type {
   Vaccination, InsertVaccination
 } from '@shared/schema';
 
-// 獲取當前用戶 ID（從 Supabase session）
+// 獲取當前用戶 ID（從 REST API token）
 async function getCurrentUserId(): Promise<string> {
-  const { supabase } = await import('./supabase');
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
-  return user.id;
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('Not authenticated');
+  
+  // Decode JWT token to get userId (simple base64 decode, no verification needed for client-side)
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.userId;
+  } catch {
+    throw new Error('Invalid token');
+  }
 }
 
 // ==================== Pets API ====================
@@ -117,13 +122,38 @@ export const vaccinationsApi = {
 
 // ==================== 向後兼容的 apiRequest ====================
 // 為了保持現有代碼的兼容性，提供一個 apiRequest 函數
-// 但實際上它會調用 Supabase API
+// 對於 auth 端點，使用 REST API；對於其他端點，使用 Supabase API
 
 export async function apiRequest<T = any>(
   method: string,
   url: string,
   data?: unknown
 ): Promise<T> {
+  // Auth endpoints use REST API with JWT tokens
+  if (url.startsWith('/api/auth/') || url === '/api/users/me') {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Request failed' }));
+      throw new Error(error.message || `HTTP ${response.status}`);
+    }
+    
+    return response.json() as Promise<T>;
+  }
+  
   // 解析 URL 和路由到對應的 Supabase API
   if (url === '/api/pets' && method === 'GET') {
     return petsApi.getAll() as Promise<T>;
@@ -186,7 +216,7 @@ export async function apiRequest<T = any>(
   throw new Error(`Unsupported API endpoint: ${method} ${url}`);
 }
 
-// 更新 queryClient 以使用 Supabase
+// 更新 queryClient 以使用 Supabase 或 REST API
 export const getQueryFn: <T>(options: {
   on401: "returnNull" | "throw";
 }) => any =
@@ -195,6 +225,25 @@ export const getQueryFn: <T>(options: {
     const url = queryKey.join('/') as string;
     
     try {
+      // Auth endpoints use REST API
+      if (url === '/api/users/me') {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          if (unauthorizedBehavior === 'returnNull') return null;
+          throw new Error('Not authenticated');
+        }
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          if (unauthorizedBehavior === 'returnNull') return null;
+          throw new Error('Not authenticated');
+        }
+        return response.json();
+      }
+      
       // 路由到對應的 Supabase API
       if (url === '/api/pets') {
         return petsApi.getAll();
