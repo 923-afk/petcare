@@ -6,6 +6,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { getChatResponse } from "./lib/gemini";
+import { getMedicineByBarcode, getAllMedicines, createMedicine } from "./services/supabase-medicines.service";
 
 const JWT_SECRET = process.env.SESSION_SECRET || "fallback-secret";
 
@@ -367,6 +368,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Chat error:", error);
       res.status(500).json({ message: "Failed to process chat request" });
+    }
+  });
+
+  // Medicine routes (for barcode scanning)
+  app.get("/api/medicines", authenticateToken, async (req: any, res) => {
+    try {
+      const barcode = req.query.barcode as string;
+
+      if (barcode) {
+        // Lookup medicine by barcode
+        const medicine = await getMedicineByBarcode(barcode);
+        if (medicine) {
+          return res.json(medicine);
+        } else {
+          return res.status(404).json({ message: "Medicine not found" });
+        }
+      } else {
+        // Get all medicines
+        const medicines = await getAllMedicines();
+        return res.json(medicines);
+      }
+    } catch (error: any) {
+      console.error("Medicine lookup error:", error);
+      res.status(500).json({ message: error.message || "Failed to lookup medicine" });
+    }
+  });
+
+  app.post("/api/medicines", authenticateToken, async (req: any, res) => {
+    try {
+      const { barcode, name, dosage, form, species, indication, manufacturer } = req.body;
+
+      if (!barcode || !name) {
+        return res.status(400).json({ message: "Barcode and name are required" });
+      }
+
+      const medicine = await createMedicine({
+        barcode: barcode.trim(),
+        name: name.trim(),
+        dosage: dosage?.trim() || undefined,
+        form: form?.trim() || undefined,
+        species: species?.trim() || undefined,
+        indication: indication?.trim() || undefined,
+        manufacturer: manufacturer?.trim() || undefined,
+      });
+
+      res.json(medicine);
+    } catch (error: any) {
+      console.error("Medicine creation error:", error);
+      res.status(500).json({ message: error.message || "Failed to create medicine" });
     }
   });
 
