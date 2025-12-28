@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
 import { Link } from "wouter";
 import ThemeToggle from "@/components/theme-toggle";
 
@@ -15,8 +14,11 @@ export default function Navbar({ variant = "landing", onSignOut }: NavbarProps) 
         <div className="flex items-center justify-between h-16">
           <Link href="/">
             <a className="flex items-center gap-2 hover-elevate rounded-lg px-3 py-2 -ml-3" data-testid="link-home">
-              <Heart className="h-6 w-6 text-primary fill-primary" />
-              <span className="font-heading text-xl font-bold">Vetcepi</span>
+              <img 
+                src="/new-logo.jpg" 
+                alt="Vetcepi" 
+                className="w-[100px] md:w-[150px] h-auto object-contain dark:brightness-110 dark:contrast-110"
+              />
             </a>
           </Link>
           

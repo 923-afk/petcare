@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
-import { Heart, Calendar, PawPrint, Users, LogOut } from "lucide-react";
+import { Calendar, PawPrint, Users, LogOut, Package, Scan } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +27,11 @@ export default function Navigation() {
     <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center px-4 mx-auto max-w-7xl">
         <Link href="/" className="flex items-center space-x-2" data-testid="logo-link">
-          <Heart className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold text-foreground">Vetcepi</span>
+          <img 
+            src="/new-logo.jpg" 
+            alt="Vetcepi" 
+            className="w-[100px] md:w-[150px] h-auto object-contain dark:brightness-110 dark:contrast-110"
+          />
         </Link>
 
         <div className="flex items-center space-x-6 ml-auto">
@@ -84,6 +87,23 @@ export default function Navigation() {
                     <Button variant="ghost" className="hidden md:inline-flex" data-testid="nav-patients">
                       <Users className="mr-2 h-4 w-4" />
                       Patients
+                    </Button>
+                  </Link>
+                  <Link href="/inventory">
+                    <Button variant="ghost" className="hidden md:inline-flex" data-testid="nav-inventory">
+                      <Package className="mr-2 h-4 w-4" />
+                      Inventory
+                    </Button>
+                  </Link>
+                  <Link href="/barcode/scan">
+                    <Button variant="ghost" className="hidden md:inline-flex" data-testid="nav-drug-scanner">
+                      <Scan className="mr-2 h-4 w-4" />
+                      Drug Scanner
+                    </Button>
+                  </Link>
+                  <Link href="/test-ocr">
+                    <Button variant="ghost" size="sm" className="hidden md:inline-flex text-xs" title="Test OCR">
+                      🧪 OCR Test
                     </Button>
                   </Link>
                 </>
