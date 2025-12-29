@@ -15,9 +15,9 @@ export default function Navbar({ variant = "landing", onSignOut }: NavbarProps) 
           <Link href="/">
             <a className="flex items-center gap-2 hover-elevate rounded-lg px-3 py-2 -ml-3" data-testid="link-home">
               <img 
-                src="/new-logo.jpg" 
+                src="/new-logo.png" 
                 alt="Vetcepi" 
-                className="w-[100px] md:w-[150px] h-auto object-contain dark:brightness-110 dark:contrast-110"
+                className="w-[100px] md:w-[150px] h-auto object-contain"
               />
             </a>
           </Link>

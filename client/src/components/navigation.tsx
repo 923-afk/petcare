@@ -28,9 +28,9 @@ export default function Navigation() {
       <div className="container flex h-16 items-center px-4 mx-auto max-w-7xl">
         <Link href="/" className="flex items-center space-x-2" data-testid="logo-link">
           <img 
-            src="/new-logo.jpg" 
+            src="/new-logo.png" 
             alt="Vetcepi" 
-            className="w-[100px] md:w-[150px] h-auto object-contain dark:brightness-110 dark:contrast-110"
+            className="w-[100px] md:w-[150px] h-auto object-contain"
           />
         </Link>
 
